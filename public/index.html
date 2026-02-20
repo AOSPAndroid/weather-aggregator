@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Prediction Market Weather Aggregator</title>
+  <meta name="description" content="Production-grade weather aggregator for prediction-market temperature contracts.">
+  <link rel="stylesheet" href="/styles.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Weather Resolution Aggregator</h1>
+      <div id="global-status" class="status-indicator updating">Aggregating sources...</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid-container" id="city-grid">
+      <!-- City cards injected here -->
+    </div>
+  </main>
+
+  <template id="city-card-template">
+    <div class="city-card glass-panel" data-city="">
+      <div class="card-header">
+        <h2 class="city-name"></h2>
+        <div class="badges">
+          <span class="badge confidence-badge"></span>
+          <span class="badge signal-badge" title=""></span>
+        </div>
+      </div>
+
+      <div class="metric-box current-metric-box">
+        <div class="metric-label">Current</div>
+        <div class="metric-value current-max">--.-°C</div>
+      </div>
+
+      <div class="day-tabs">
+        <button class="day-tab active" data-day="today">Today</button>
+        <button class="day-tab" data-day="tomorrow">Tomorrow</button>
+        <button class="day-tab" data-day="after_tomorrow">Day After</button>
+      </div>
+
+      <div class="day-panels">
+        <div class="day-panel active" data-day-panel="today">
+          <div class="metrics-grid">
+            <div class="metric-box highlight">
+              <div class="metric-label">Forecast High</div>
+              <div class="metric-value forecast-max">--.-°C</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-label">Observed Max</div>
+              <div class="metric-value recorded-max">--.-°C</div>
+            </div>
+          </div>
+          <div class="anchor-panel">
+            <div class="anchor-title">Resolution Anchor</div>
+            <div class="anchor-details">Loading...</div>
+          </div>
+          <div class="spread-viz-container">
+            <div class="spread-label">Forecast Consensus Spread</div>
+            <div class="spread-viz" title="Forecast spread visualization">
+              <div class="spread-track" style="width: 0%; left: 0%;"></div>
+            </div>
+            <div class="spread-stats">
+              <span class="spread-min">--</span>
+              <span class="spread-median">Med: --</span>
+              <span class="spread-max">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-panel" data-day-panel="tomorrow">
+          <div class="metrics-grid">
+            <div class="metric-box highlight">
+              <div class="metric-label">Forecast High (D+1)</div>
+              <div class="metric-value forecast-max">--.-°C</div>
+            </div>
+          </div>
+          <div class="spread-viz-container">
+            <div class="spread-label">Forecast Consensus Spread</div>
+            <div class="spread-viz" title="Forecast spread visualization">
+              <div class="spread-track" style="width: 0%; left: 0%;"></div>
+            </div>
+            <div class="spread-stats">
+              <span class="spread-min">--</span>
+              <span class="spread-median">Med: --</span>
+              <span class="spread-max">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-panel" data-day-panel="after_tomorrow">
+          <div class="metrics-grid">
+            <div class="metric-box highlight">
+              <div class="metric-label">Forecast High (D+2)</div>
+              <div class="metric-value forecast-max">--.-°C</div>
+            </div>
+          </div>
+          <div class="spread-viz-container">
+            <div class="spread-label">Forecast Consensus Spread</div>
+            <div class="spread-viz" title="Forecast spread visualization">
+              <div class="spread-track" style="width: 0%; left: 0%;"></div>
+            </div>
+            <div class="spread-stats">
+              <span class="spread-min">--</span>
+              <span class="spread-median">Med: --</span>
+              <span class="spread-max">--</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sources-panel">
+        <div class="sources-title">Sources Breakdown</div>
+        <table class="sources-table">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Age</th>
+            </tr>
+          </thead>
+          <tbody class="sources-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="last-updated">Last update: --</div>
+    </div>
+  </template>
+
+  <script src="/app.js"></script>
+</body>
+
+</html>
