@@ -2,6 +2,9 @@ const CITIES = ['london', 'paris', 'dallas', 'miami'];
 const REFRESH_MS = 60000;
 const DAY_KEYS = ['today', 'tomorrow', 'after_tomorrow'];
 
+// API base URL - defaults to relative, override for external hosting
+const API_BASE = window.API_BASE || '';
+
 document.addEventListener('DOMContentLoaded', () => {
     initDashboard();
     setInterval(refreshAll, REFRESH_MS);
@@ -47,7 +50,7 @@ async function refreshAll() {
 
     await Promise.all(CITIES.map(async (city) => {
         try {
-            const res = await fetch(`/api/all/${city}`);
+            const res = await fetch(`${API_BASE}/api/all/${city}`);
             if (res.status === 503) return;
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
