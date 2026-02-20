@@ -19,7 +19,16 @@ app.use('/api/history', historyRoute);
 app.use('/api/source-health', sourceHealthRoute);
 app.use('/api/decision', decisionRoute);
 
-app.listen(config.PORT, () => {
-  console.log(`Weather Aggregator listening on port ${config.PORT}`);
-  scheduler.start();
+const PORT = config.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Weather Aggregator listening on port ${PORT}`);
+  
+  // Only start scheduler if enabled (for local/traditional hosting)
+  // On Vercel/serverless, set ENABLE_SCHEDULER=false
+  if (process.env.ENABLE_SCHEDULER !== 'false') {
+    scheduler.start();
+  } else {
+    console.log('Scheduler disabled (serverless mode)');
+  }
 });
