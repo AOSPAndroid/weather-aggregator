@@ -1,44 +1,11 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+// In-memory database for cloud deployment
+// Replace SQLite with simple array storage
 
-const dbPath = path.join(__dirname, '..', '..', 'weather-data.sqlite');
-const db = new Database(dbPath, { verbose: null });
-
-db.pragma('journal_mode = WAL');
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS fetch_log (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    city TEXT NOT NULL,
-    source_id TEXT NOT NULL,
-    source_type TEXT NOT NULL,
-    metric_type TEXT NOT NULL,
-    value_c REAL,
-    value_f REAL,
-    fetched_at TEXT NOT NULL,
-    parse_method TEXT NOT NULL,
-    parse_status TEXT NOT NULL,
-    raw_snippet TEXT,
-    latency_ms INTEGER,
-    http_status INTEGER
-  );
-  
-  CREATE INDEX IF NOT EXISTS idx_city_fetched_at ON fetch_log(city, fetched_at);
-  CREATE INDEX IF NOT EXISTS idx_city_source_fetched_at ON fetch_log(city, source_id, fetched_at);
-`);
-
-const insertStmt = db.prepare(`
-  INSERT INTO fetch_log (
-    city, source_id, source_type, metric_type, value_c, value_f,
-    fetched_at, parse_method, parse_status, raw_snippet, latency_ms, http_status
-  ) VALUES (
-    @city, @source_id, @source_type, @metric_type, @value_c, @value_f,
-    @fetched_at, @parse_method, @parse_status, @raw_snippet, @latency_ms, @http_status
-  )
-`);
+const fetchHistory = [];
 
 function insertFetchLog(entry) {
-  return insertStmt.run({
+  const record = {
+    id: fetchHistory.length + 1,
     city: entry.city,
     source_id: entry.source_id,
     source_type: entry.source_type,
@@ -51,20 +18,21 @@ function insertFetchLog(entry) {
     raw_snippet: entry.raw_snippet ? String(entry.raw_snippet).substring(0, 500) : null,
     latency_ms: entry.latency_ms || null,
     http_status: entry.http_status || null,
-  });
+  };
+  
+  fetchHistory.push(record);
+  return { changes: 1, lastInsertRowid: record.id };
 }
 
 function getHistory(city, hours = 24) {
-  const stmt = db.prepare(`
-    SELECT * FROM fetch_log
-    WHERE city = ? AND fetched_at >= datetime('now', ?)
-    ORDER BY fetched_at DESC
-  `);
-  return stmt.all(city, `-${hours} hours`);
+  const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+  return fetchHistory
+    .filter(r => r.city === city && new Date(r.fetched_at) >= cutoff)
+    .sort((a, b) => new Date(b.fetched_at) - new Date(a.fetched_at));
 }
 
 module.exports = {
-  db,
+  db: { exec: () => {} },
   insertFetchLog,
   getHistory
 };
